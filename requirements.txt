@@ -6,6 +6,7 @@ matplotlib
 numpy
 scipy
 shapely
+pandas
 ipywidgets
 jupyter
 ipykernel
