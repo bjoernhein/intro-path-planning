@@ -21,12 +21,15 @@ class PlanarJoint:
         self.trans = sp.Matrix([self.sym_a * sp.cos(self.sym_theta), self.sym_a * sp.sin(self.sym_theta)])
         last_row = sp.Matrix([[0, 0, 1]])
         self.M = sp.Matrix.vstack(sp.Matrix.hstack(self.rot, self.trans), last_row)
+        expr = self.M * sp.Matrix([0, 0, 1])
+        self._transform_fn = sp.lambdify((self.sym_a, self.sym_theta), expr, 'numpy')
 
     def get_subs(self):
         return {self.sym_a: self.a, self.sym_theta: self.theta}
 
     def get_transform(self):
-        return np.squeeze(np.array(self.M.subs(self.get_subs()) * sp.Matrix([0, 0, 1]))).astype(np.float32)[:2]
+        result = self._transform_fn(self.a, self.theta)
+        return np.array(result).squeeze().astype(np.float32)[:2]
 
     def move(self, new_theta):
         self.theta = new_theta
@@ -40,14 +43,22 @@ class PlanarRobot:
         for joint in self.joints:
             self.Ms.append(self.Ms[-1] * joint.M)
 
-    def get_transforms(self):
-        ts = []
-        sub = {}
+        all_syms = []
         for joint in self.joints:
-            sub = {**sub, **joint.get_subs()}
-        for M in self.Ms:
-            ts.append(np.squeeze(np.array(M.subs(sub) * sp.Matrix([0, 0, 1]))).astype(np.float32)[:2])
-        return ts
+            all_syms += [joint.sym_a, joint.sym_theta]
+        self._fk_fns = [
+            sp.lambdify(all_syms, M * sp.Matrix([0, 0, 1]), 'numpy')
+            for M in self.Ms
+        ]
+
+    def get_transforms(self):
+        args = []
+        for joint in self.joints:
+            args += [joint.a, joint.theta]
+        return [
+            np.array(fn(*args)).squeeze().astype(np.float32)[:2]
+            for fn in self._fk_fns
+        ]
 
     def move(self, new_thetas):
         assert len(new_thetas) == len(self.joints)
