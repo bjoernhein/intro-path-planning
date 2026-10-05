@@ -1,1 +1,5 @@
 /notebooks/.ipynb_checkpoints/**
+*.pyc
+.DS_Store
+.vscode/
+/notebooks/basicprmstats
