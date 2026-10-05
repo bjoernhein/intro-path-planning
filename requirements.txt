@@ -10,3 +10,4 @@ pandas
 ipywidgets
 jupyter
 ipykernel
+sympy
