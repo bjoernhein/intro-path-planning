@@ -21,18 +21,21 @@ from shapely import affinity, plotting
 from shapely.geometry import Point, Polygon, box
 from shapely.ops import unary_union
 
+from IPEnvironment import OBSTACLE_COLOR
+from IPVISStyle import COLLISION_COLOR, FREE_COLOR, GOAL_COLOR, START_COLOR
+
 # colors used for all figures of the notebook
 INK = "#0b0b0b"
 INK_SECONDARY = "#52514e"
 INK_MUTED = "#898781"
 GRID = "#e1e0d9"
-OBSTACLE = "#52514e"
-C_OBSTACLE = "#eb6834"
-START = "#0ca30c"
-GOAL = "#d03b3b"
-FREE = "#2a78d6"
-COLLISION = "#eb6834"
-OBSTACLE_COLORS = ["#2a78d6", "#eb6834", "#4a3aa7"]
+OBSTACLE = OBSTACLE_COLOR
+C_OBSTACLE = COLLISION_COLOR
+START = START_COLOR
+GOAL = GOAL_COLOR
+FREE = FREE_COLOR
+COLLISION = COLLISION_COLOR
+OBSTACLE_COLORS = ["#2a78d6", "#eb6834", "#4a3aa7"]   # several obstacles, each with its own color
 
 
 # ---------------------------------------------------------------------------

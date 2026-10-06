@@ -21,18 +21,11 @@ from shapely import affinity, plotting
 from shapely.geometry import LineString, Point, Polygon, box
 from shapely.ops import unary_union
 
-from IPEnvironment import OBSTACLE_COLOR
+# colors used for all figures of the notebook (common style of all notebooks, see IPVISStyle.py)
+from IPVISStyle import (COLLISION_COLOR, COMPONENT_COLOR, EDGE_COLOR, FREE_COLOR, GOAL_COLOR, MUTED, NODE_COLOR,
+                        PATH_COLOR, START_COLOR)
 
-# colors used for all figures of the notebook (same as in the other notebooks)
-NODE_COLOR = "#b7d3f6"
-EDGE_COLOR = "#52514e"
-COMPONENT_COLOR = "#eda100"
-SAMPLE_COLOR = "#2a78d6"      # newly generated configuration and its neighbourhood
-COLLISION_COLOR = "#eb6834"
-START_COLOR = "#0ca30c"
-GOAL_COLOR = "#d03b3b"
-PATH_COLOR = "#2a78d6"
-MUTED = "#898781"
+SAMPLE_COLOR = FREE_COLOR     # newly generated configuration and its neighbourhood
 
 
 # ---------------------------------------------------------------------------

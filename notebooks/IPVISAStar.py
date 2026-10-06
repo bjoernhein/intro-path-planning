@@ -8,49 +8,25 @@ License is based on Creative Commons: Attribution-NonCommercial 4.0 Internationa
 
 import networkx as nx
 
+from IPVISStyle import EDGE_COLOR, MUTED, drawSolution, drawStartGoal
+
 
 def aStarVisualize(planner, solution, ax = None, nodeSize = 300):
+    """ Draw the search graph of A*: expanded nodes (closed list, gray) and nodes of the
+    open list (white), the solution path and start/goal.
+    """
     graph = planner.graph
-    collChecker = planner._collisionChecker
+    planner._collisionChecker.drawObstacles(ax)
+
     # get a list of positions of all nodes by returning the content of the attribute 'pos'
     pos = nx.get_node_attributes(graph,'pos')
-    color = nx.get_node_attributes(graph,'color')
-    
-    # get a list of degrees of all nodes
-    #degree = nx.degree_centrality(graph)
-    
-    # draw graph (nodes colorized by degree)
-    open_nodes = [node for node,attribute in graph.nodes(data=True) if attribute['status']=="open"]
-    draw_nodes = nx.draw_networkx_nodes(graph, pos, node_color='#FFFFFF', nodelist=open_nodes, ax = ax, node_size=nodeSize)
-    draw_nodes.set_edgecolor("b")
-    open_nodes = [node for node,attribute in graph.nodes(data=True) if attribute['status']=="closed"]
-    draw_nodes = nx.draw_networkx_nodes(graph, pos, node_color='#0000FF', nodelist=open_nodes, ax = ax, node_size=nodeSize)
-    #nx.draw_networkx_nodes(graph, pos,  cmap=plt.cm.Blues, ax = ax, node_size=nodeSize)
-    nx.draw_networkx_edges(graph,pos,
-                               edge_color='b',
-                               width=3.0
-                            )
-    
-    collChecker.drawObstacles(ax)
-    
-    # draw nodes based on solution path
-    Gsp = nx.subgraph(graph,solution)
-    nx.draw_networkx_nodes(Gsp,pos,
-                            node_size=nodeSize,
-                             node_color='g')
-        
-    # draw edges based on solution path
-    nx.draw_networkx_edges(Gsp,pos,alpha=0.8,edge_color='g',width=10,arrows=True)
- 
-    nx.draw_networkx_nodes(graph,pos,nodelist=[solution[0]],
-                           node_size=300,
-                           node_color='#00dd00',  ax = ax)
-    nx.draw_networkx_labels(graph,pos,labels={solution[0]: "S"},  ax = ax)
 
+    nx.draw_networkx_edges(graph, pos, ax=ax, edge_color=EDGE_COLOR, width=1.0, arrows=False)
+    for status, color in (("closed", MUTED), ("open", "white")):
+        nodes = [node for node, attribute in graph.nodes(data=True) if attribute['status'] == status]
+        nx.draw_networkx_nodes(graph, pos, nodelist=nodes, ax=ax, node_size=nodeSize, node_color=color,
+                               edgecolors=EDGE_COLOR, linewidths=0.8)
 
-    nx.draw_networkx_nodes(graph,pos,nodelist=[solution[-1]],
-                                   node_size=300,
-                                   node_color='#DD0000',  ax = ax)
-    nx.draw_networkx_labels(graph,pos,labels={solution[-1]: "G"},  ax = ax)
-
-
+    drawSolution(graph, pos, solution, ax, arrows=False)
+    if solution:
+        drawStartGoal(graph, pos, ax, nodeSize, start=solution[0], goal=solution[-1])
