@@ -25,27 +25,26 @@ class BasicPRM(IPPRMBase.PRMBase):
     
     @IPPerfMonitor
     def _inSameConnectedComponent(self, node1, node2):
-        """ Check whether to nodes are part of the same connected component using
-            functionality from NetworkX
+        """ Check whether two nodes are part of the same connected component using
+            functionality from NetworkX: this is the case, if there is a path between them.
+            (has_path searches from both nodes and stops early, much faster than
+            enumerating all connected components)
         """
-        for connectedComponent in nx.connected_components(self.graph):
-            if (node1 in connectedComponent) & (node2 in connectedComponent):
-                return True
-
-        return False
+        return nx.has_path(self.graph, node1, node2)
 
     
     @IPPerfMonitor
     def _nearestNeighbours(self, pos, radius):
-        """ Brute Force method to find all nodes of a 
+        """ Brute Force method to find all nodes of a
         graph near the given position **pos** with in the distance of
-        **radius** """
+        **radius**, sorted by increasing distance """
 
         result = list()
         for node in self.graph.nodes(data=True):
             if euclidean(node[1]['pos'],pos) <= radius:
                 result.append(node)
 
+        result.sort(key=lambda node: euclidean(node[1]['pos'], pos))
         return result
     
     @IPPerfMonitor
@@ -57,16 +56,17 @@ class BasicPRM(IPPRMBase.PRMBase):
         
             # Generate a 'randomly chosen, free configuration'
             newNodePos = self._getRandomFreePosition()
-            self.graph.add_node(nodeID, pos=newNodePos)
-            
+
             # Find set of candidates to connect to sorted by distance
             result = self._nearestNeighbours(newNodePos, radius)
+            self.graph.add_node(nodeID, pos=newNodePos)
 
-            # for all nearest neighbours check whether a connection is possible
+            # for all nearest neighbours check whether a connection is possible;
+            # neighbours already in the same connected component are skipped
             for data in result:
                 if self._inSameConnectedComponent(nodeID,data[0]):
-                    break
-                
+                    continue
+
                 neighbourPos = data[1]['pos']
                 if not self._collisionChecker.lineInCollision(
                     newNodePos, neighbourPos, steps=collisionCheckingSteps
