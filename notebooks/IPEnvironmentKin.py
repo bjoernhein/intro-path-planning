@@ -7,7 +7,7 @@ Author: Gergely Soti, adapted by Bjoern Hein
 License is based on Creative Commons: Attribution-NonCommercial 4.0 International (CC BY-NC 4.0) (pls. check: http://creativecommons.org/licenses/by-nc/4.0/)
 """
 from IPPlanarManipulator import PlanarJoint, PlanarRobot
-from IPEnvironment import CollisionChecker
+from IPEnvironment import CollisionChecker, OBSTACLE_COLOR
 from shapely.geometry import Point, Polygon, LineString
 from shapely import plotting
 import numpy as np
@@ -66,7 +66,7 @@ class KinChainCollisionChecker(CollisionChecker):
     def drawObstacles(self, ax, inWorkspace=False):
         if inWorkspace:
             for key, value in self.scene.items():
-                plotting.plot_polygon(value, add_points=False, color='red', ax=ax)
+                plotting.plot_polygon(value, add_points=False, color=OBSTACLE_COLOR, ax=ax)
 
 
 

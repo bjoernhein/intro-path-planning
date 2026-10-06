@@ -11,6 +11,9 @@ from IPPerfMonitor import IPPerfMonitor
 from shapely.geometry import Point, Polygon, LineString
 from shapely import plotting
 
+# color of the obstacles in all notebooks (start: green, goal: red)
+OBSTACLE_COLOR = "#52514e"
+
 class CollisionChecker(object):
 
     def __init__(self, scene, limits=None, statistic=None):
@@ -76,5 +79,5 @@ class CollisionChecker(object):
 
     def drawObstacles(self, ax):
         for key, value in self.scene.items():
-            plotting.plot_polygon(value, add_points=False, ax=ax, color='red')
+            plotting.plot_polygon(value, add_points=False, ax=ax, color=OBSTACLE_COLOR)
             
