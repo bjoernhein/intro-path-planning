@@ -8,12 +8,15 @@ License is based on Creative Commons: Attribution-NonCommercial 4.0 Internationa
 
 import networkx as nx
 
-from IPVISStyle import EDGE_COLOR, MUTED, drawSolution, drawStartGoal
+from IPVISStyle import EDGE_COLOR, MUTED, SPECIAL_COLOR, drawSolution, drawStartGoal
 
 
 def aStarVisualize(planner, solution, ax = None, nodeSize = 300):
     """ Draw the search graph of A*: expanded nodes (closed list, gray) and nodes of the
     open list (white), the solution path and start/goal.
+
+    With reopening also: nodes, that got a cheaper path while in the open list (violet ring),
+    and closed nodes, that were reopened (violet).
     """
     graph = planner.graph
     planner._collisionChecker.drawObstacles(ax)
@@ -26,6 +29,18 @@ def aStarVisualize(planner, solution, ax = None, nodeSize = 300):
         nodes = [node for node, attribute in graph.nodes(data=True) if attribute['status'] == status]
         nx.draw_networkx_nodes(graph, pos, nodelist=nodes, ax=ax, node_size=nodeSize, node_color=color,
                                edgecolors=EDGE_COLOR, linewidths=0.8)
+
+    # (a node updated in the open list may turn out to be in collision later: not marked)
+    reopened = [node for node, attribute in graph.nodes(data=True)
+                if attribute.get('reopened') and not attribute.get('collision')]
+    updated = [node for node, attribute in graph.nodes(data=True)
+               if attribute.get('updated') and not attribute.get('collision')]
+    if reopened:
+        nx.draw_networkx_nodes(graph, pos, nodelist=reopened, ax=ax, node_size=nodeSize, node_color=SPECIAL_COLOR,
+                               edgecolors=EDGE_COLOR, linewidths=0.8)
+    if updated:
+        nx.draw_networkx_nodes(graph, pos, nodelist=updated, ax=ax, node_size=2.5 * nodeSize, node_color="none",
+                               edgecolors=SPECIAL_COLOR, linewidths=2.0)
 
     drawSolution(graph, pos, solution, ax, arrows=False)
     if solution:
