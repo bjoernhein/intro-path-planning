@@ -1,9 +1,14 @@
 # coding: utf-8
 
 """
-Planar robot environment helpers used within the introduction to robot path planning notebooks.
+This code is part of the course "Introduction to robot path planning" (Author: Bjoern Hein).
 
-This code is part of a series of notebooks regarding  "Introduction to robot path planning".
+Robots with a shape in the plane and their collision checker, see IP-10-2-ShapeRobot:
+
+* ShapeRobot: a shapely geometry, which is translated. Configuration: [x, y], the position of its reference point
+  (the origin of the coordinates, in which the geometry is defined).
+* ShapeRobotWithOrientation: additionally rotated around its reference point. Configuration: [x, y, theta].
+* CollisionCheckerShapeRobot: places the robot at a configuration and checks its geometry against the obstacles.
 
 License is based on Creative Commons: Attribution-NonCommercial 4.0 International (CC BY-NC 4.0) (pls. check: http://creativecommons.org/licenses/by-nc/4.0/)
 """
@@ -26,9 +31,9 @@ class ShapeRobot:
         # Store workspace limits so they can be reused by the collision checker.
         self.limits = [list(bound) for bound in limits]
 
-    def setTo(self, pos): 
-        x_pos, y_pos = pos
+    def setTo(self, pos):
         """Move the robot geometry to a new absolute position."""
+        x_pos, y_pos = pos
         dx = x_pos - self._pose[0]
         dy = y_pos - self._pose[1]
         self.geometry = translate(self.geometry, xoff=dx, yoff=dy)
@@ -59,8 +64,8 @@ class ShapeRobotWithOrientation(ShapeRobot):
         self._use_radians = use_radians
 
     def setTo(self, pos):
-        x_pos, y_pos, orientation = pos
         """Move the robot to an absolute pose (x, y, theta)."""
+        x_pos, y_pos, orientation = pos
         if orientation == self._orientation:
             dx = x_pos - self._pose[0]
             dy = y_pos - self._pose[1]
@@ -115,12 +120,17 @@ class CollisionCheckerShapeRobot(CollisionChecker):
         For a robot with an extent it is not implemented yet (see exercise in IP-11-0-BB-Method)."""
         raise NotImplementedError("penetrationDepth is not implemented for CollisionCheckerShapeRobot")
 
-    @IPPerfMonitor
-    def pointInCollision(self, pos):
-        """Check whether the robot placed at the given position collides with the scene."""
+    def robotInCollision(self, pos):
+        """The collision check itself: place the robot at pos and check its geometry against all obstacles.
+        Not checked: whether the robot lies inside the limits of the environment."""
         assert len(pos) == self.getDim()
         self.robot.setTo(pos)
         for obstacle in self.scene.values():
             if obstacle.intersects(self.robot.geometry):
                 return True
         return False
+
+    @IPPerfMonitor
+    def pointInCollision(self, pos):
+        """Check whether the robot placed at the given position collides with the scene."""
+        return self.robotInCollision(pos)
