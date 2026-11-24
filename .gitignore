@@ -3,3 +3,7 @@
 .DS_Store
 .vscode/
 /notebooks/basicprmstats
+# solutions of the exercises and labs are not published
+/notebooks/*_solution.ipynb
+# local experiments
+/notebooks/robosuite_test*.py
